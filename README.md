@@ -43,6 +43,5 @@ CACAO Roaster is the app-owned web authoring surface. SOARCA is the execution AP
 
 ## Sources
 
-- Donor source path: `C:\projects\typerefinery-ai\typerefinery\services\soarca`
 - Upstream release: https://github.com/COSSAS/SOARCA/releases/tag/1.1.0
 - Upstream docs: https://cossas.github.io/SOARCA/
