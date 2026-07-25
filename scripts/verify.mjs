@@ -96,15 +96,59 @@ async function stopChild(child) {
 }
 
 const serviceManifest = JSON.parse(await readFile(path.join(repoRoot, "service.json"), "utf8"));
+
+async function readManifest(relativePath) {
+  return JSON.parse(await readFile(path.join(repoRoot, relativePath), "utf8"));
+}
+
+function assertCanonicalHealthchecks(manifest, relativePath) {
+  if (manifest.healthcheck !== undefined) {
+    throw new Error(`${relativePath} still contains singular healthcheck.`);
+  }
+
+  if (manifest.healthchecks === undefined) {
+    return;
+  }
+
+  if (!Array.isArray(manifest.healthchecks) || manifest.healthchecks.length === 0) {
+    throw new Error(`${relativePath} healthchecks must be a non-empty array when declared.`);
+  }
+
+  const ids = new Set();
+  for (const check of manifest.healthchecks) {
+    if (!check?.id || ids.has(check.id)) {
+      throw new Error(`${relativePath} healthchecks must have stable unique ids: ${JSON.stringify(manifest.healthchecks)}`);
+    }
+    ids.add(check.id);
+  }
+}
+
+const checkedManifestPaths = [
+  "service.json",
+  "services/@localcert/service.json",
+  "services/@nginx/service.json",
+  "services/@node/service.json",
+  "services/@serviceadmin/service.json",
+  "services/@traefik/service.json",
+  "services/echo-service/service.json",
+];
+
+for (const manifestPath of checkedManifestPaths) {
+  assertCanonicalHealthchecks(await readManifest(manifestPath), manifestPath);
+}
+
 if (serviceManifest.id !== "soarca" || serviceManifest.version !== soarcaVersion) {
   throw new Error(`Unexpected service manifest identity: ${JSON.stringify({ id: serviceManifest.id, version: serviceManifest.version })}`);
 }
 
 if (
-  serviceManifest.healthcheck?.type !== "http" ||
-  serviceManifest.healthcheck.url !== "${endpoint.health.url}"
+  !Array.isArray(serviceManifest.healthchecks) ||
+  serviceManifest.healthchecks.length !== 1 ||
+  serviceManifest.healthchecks[0]?.id !== "http-health" ||
+  serviceManifest.healthchecks[0]?.type !== "http" ||
+  serviceManifest.healthchecks[0]?.url !== "${endpoint.health.url}"
 ) {
-  throw new Error(`SOARCA service.json healthcheck drifted: ${JSON.stringify(serviceManifest.healthcheck)}`);
+  throw new Error(`SOARCA service.json healthchecks drifted: ${JSON.stringify(serviceManifest.healthchecks)}`);
 }
 
 if (serviceManifest.ports !== undefined || serviceManifest.portmapping !== undefined || serviceManifest.urls !== undefined) {
