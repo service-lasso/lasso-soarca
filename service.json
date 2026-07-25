@@ -4,14 +4,51 @@
   "description": "Release-backed SOARCA CACAO orchestration API service.",
   "version": "1.1.0",
   "enabled": false,
-  "ports": {
-    "service": 8080
-  },
-  "portmapping": {
-    "http": "${SERVICE_PORT}"
-  },
+  "endpoints": [
+    {
+      "id": "api",
+      "kind": "network",
+      "label": "SOARCA API",
+      "direction": "inbound",
+      "transport": "tcp",
+      "protocol": "http",
+      "bind": "127.0.0.1",
+      "port": {
+        "default": 8080,
+        "strategy": "preferred"
+      },
+      "exposure": "local",
+      "required": true,
+      "primary": true
+    },
+    {
+      "id": "api_url",
+      "kind": "url",
+      "label": "SOARCA API",
+      "target": "api",
+      "url": "http://127.0.0.1:${endpoint.api.port}",
+      "exposure": "local",
+      "primary": true
+    },
+    {
+      "id": "swagger",
+      "kind": "url",
+      "label": "Swagger",
+      "target": "api",
+      "url": "http://127.0.0.1:${endpoint.api.port}/swagger/index.html",
+      "exposure": "local"
+    },
+    {
+      "id": "health",
+      "kind": "url",
+      "label": "health",
+      "target": "api",
+      "url": "http://127.0.0.1:${endpoint.api.port}/status/ping",
+      "exposure": "local"
+    }
+  ],
   "env": {
-    "PORT": "${SERVICE_PORT}",
+    "PORT": "${endpoint.api.port}",
     "GIN_MODE": "release",
     "SOARCA_ALLOWED_ORIGINS": "*",
     "MAX_EXECUTIONS": "1000",
@@ -30,30 +67,13 @@
     "LOG_MODE": "production",
     "LOG_FORMAT": "json",
     "LOG_FILE_PATH": "${SERVICE_ROOT}/logs/soarca.log",
-    "SOARCA_URL": "http://127.0.0.1:${SERVICE_PORT}"
+    "SOARCA_URL": "${endpoint.api_url.url}"
   },
   "globalenv": {
     "SOARCA_URL": "${SOARCA_URL}",
-    "SOARCA_PORT": "${SERVICE_PORT}",
-    "SOARCA_SWAGGER_URL": "${SOARCA_URL}/swagger/index.html"
+    "SOARCA_PORT": "${endpoint.api.port}",
+    "SOARCA_SWAGGER_URL": "${endpoint.swagger.url}"
   },
-  "urls": [
-    {
-      "label": "SOARCA API",
-      "url": "${SOARCA_URL}",
-      "kind": "local"
-    },
-    {
-      "label": "Swagger",
-      "url": "${SOARCA_URL}/swagger/index.html",
-      "kind": "local"
-    },
-    {
-      "label": "health",
-      "url": "${SOARCA_URL}/status/ping",
-      "kind": "local"
-    }
-  ],
   "artifact": {
     "kind": "archive",
     "source": {
@@ -96,7 +116,7 @@
   },
   "healthcheck": {
     "type": "http",
-    "url": "${SOARCA_URL}/status/ping",
+    "url": "${endpoint.health.url}",
     "expected_status": 200,
     "retries": 80,
     "interval": 250
@@ -112,7 +132,7 @@
       "type": "git",
       "url": "https://github.com/service-lasso/lasso-soarca.git"
     },
-    "documentationUrl": "https://github.com/service-lasso/lasso-soarca/blob/main/README.md",
+    "documentationUrl": "https://github.com/service-lasso/lasso-soarca/blob/develop/README.md",
     "issuesUrl": "https://github.com/service-lasso/lasso-soarca/issues",
     "upstreamUrl": "https://github.com/COSSAS/SOARCA",
     "tags": [

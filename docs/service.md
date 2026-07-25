@@ -5,7 +5,7 @@
 ## Defaults
 
 - `soarca` is disabled by default.
-- The service listens on `PORT`, mapped from Service Lasso's negotiated `${SERVICE_PORT}`.
+- The service listens on `PORT`, mapped from Service Lasso's negotiated `${endpoint.api.port}`.
 - Readiness uses `GET /status/ping`.
 - Swagger is exposed at `/swagger/index.html`.
 - Database, FIN/MQTT, TLS, and auth integrations are disabled by default for local development.

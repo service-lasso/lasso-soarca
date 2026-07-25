@@ -8,9 +8,9 @@ SOARCA is an app-owned CACAO orchestration service. It is disabled by default be
 
 - Service ID: `soarca`
 - Upstream version: `1.1.0`
-- Default HTTP port: `8080`
-- Healthcheck: `GET http://127.0.0.1:${SERVICE_PORT}/status/ping`
-- Swagger: `http://127.0.0.1:${SERVICE_PORT}/swagger/index.html`
+- Canonical network endpoint: `api` on default HTTP port `8080`
+- Health endpoint: `health` -> `GET http://127.0.0.1:${endpoint.api.port}/status/ping`
+- Swagger endpoint: `swagger` -> `http://127.0.0.1:${endpoint.api.port}/swagger/index.html`
 - First package platforms: Windows x64, Linux x64, macOS arm64
 
 ## Release Artifacts
