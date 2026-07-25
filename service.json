@@ -114,13 +114,16 @@
       }
     ]
   },
-  "healthcheck": {
-    "type": "http",
-    "url": "${endpoint.health.url}",
-    "expected_status": 200,
-    "retries": 80,
-    "interval": 250
-  },
+  "healthchecks": [
+    {
+      "id": "http-health",
+      "type": "http",
+      "url": "${endpoint.health.url}",
+      "expected_status": 200,
+      "retries": 80,
+      "interval": 250
+    }
+  ],
   "updates": {
     "enabled": true,
     "mode": "notify",
