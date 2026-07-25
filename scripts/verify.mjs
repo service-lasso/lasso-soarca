@@ -102,10 +102,25 @@ if (serviceManifest.id !== "soarca" || serviceManifest.version !== soarcaVersion
 
 if (
   serviceManifest.healthcheck?.type !== "http" ||
-  serviceManifest.healthcheck.url !== "${SOARCA_URL}/status/ping" ||
-  serviceManifest.ports?.service !== 8080
+  serviceManifest.healthcheck.url !== "${endpoint.health.url}"
 ) {
-  throw new Error(`SOARCA service.json health/ports drifted: ${JSON.stringify(serviceManifest.healthcheck)}`);
+  throw new Error(`SOARCA service.json healthcheck drifted: ${JSON.stringify(serviceManifest.healthcheck)}`);
+}
+
+if (serviceManifest.ports !== undefined || serviceManifest.portmapping !== undefined || serviceManifest.urls !== undefined) {
+  throw new Error("SOARCA service.json still contains legacy ports, portmapping, or urls fields.");
+}
+
+const endpointsById = new Map((serviceManifest.endpoints ?? []).map((endpoint) => [endpoint.id, endpoint]));
+if (
+  endpointsById.get("api")?.kind !== "network" ||
+  endpointsById.get("api")?.port?.default !== 8080 ||
+  endpointsById.get("api")?.port?.strategy !== "preferred" ||
+  endpointsById.get("api_url")?.url !== "http://127.0.0.1:${endpoint.api.port}" ||
+  endpointsById.get("swagger")?.url !== "http://127.0.0.1:${endpoint.api.port}/swagger/index.html" ||
+  endpointsById.get("health")?.url !== "http://127.0.0.1:${endpoint.api.port}/status/ping"
+) {
+  throw new Error(`SOARCA service.json endpoints drifted: ${JSON.stringify(serviceManifest.endpoints)}`);
 }
 
 for (const key of ["SOARCA_URL", "SOARCA_PORT", "SOARCA_SWAGGER_URL"]) {
