@@ -4,11 +4,6 @@
 
 SOARCA is an app-owned CACAO orchestration service. It is disabled by default because playbooks, credentials, integrations, database choices, and execution policy belong to the consuming app.
 
-For the canonical app-owned integration workflow, see [Add OpenObserve or
-SOARCA to an app](https://service-lasso.github.io/service-lasso/components/app-owned-service-workflows).
-This repository retains the
-release package, manifest, endpoint, and verification contract below.
-
 ## Service Contract
 
 - Service ID: `soarca`
@@ -45,8 +40,7 @@ The verifier downloads the upstream SOARCA release asset for the current platfor
 ## CACAO Roaster Pairing
 
 CACAO Roaster is the app-owned web authoring surface. SOARCA is the execution
-API. Follow the canonical Core guide above for the consuming-app inventory and
-`SOARCA_URL` pairing flow.
+API.
 
 ## Sources
 
